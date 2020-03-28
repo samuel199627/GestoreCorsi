@@ -21,6 +21,8 @@ public class EntryPoint extends Application {
         
         Model model = new Model();
         FXMLController controller = loader.getController();
+        //settiamo il modello in modo che il controller possa accedere al modello 
+        //in base a quello che e' stato selezionato dall'interfaccia
         controller.setModel(model);
         
         stage.setTitle("Gestore Corsi");

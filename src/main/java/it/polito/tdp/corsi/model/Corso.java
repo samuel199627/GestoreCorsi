@@ -1,10 +1,24 @@
 package it.polito.tdp.corsi.model;
 
 public class Corso {
+	
+	//la tabella corsi e' organizzata
+	/*
+	Dump della struttura di tabella iscritticorsi.corso
+	CREATE TABLE IF NOT EXISTS `corso` (
+			  `codins` varchar(50) NOT NULL, //codice insegnamento
+			  `crediti` int(11) NOT NULL,
+			  `nome` varchar(50) NOT NULL,
+			  `pd` int(11) NOT NULL, //periodo didattico
+			  PRIMARY KEY (`codins`) //chiave primaria
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	*/
+	
 	private String codins;
 	private Integer crediti;
 	private String nome;
 	private Integer pd;
+	
 	
 	
 	public Corso(String codins, Integer crediti, String nome, Integer pd) {
@@ -54,13 +68,17 @@ public class Corso {
 		this.pd = pd;
 	}
 
-
+	
+	//generiamo un toString() per stampare i corsi (da source selezionando tutti i campi)
 	@Override
 	public String toString() {
 		return "Corso [codins=" + codins + ", crediti=" + crediti + ", nome=" + nome + ", pd=" + pd + "]";
 	}
 
 
+	//creiamo hashCode ed equals mediante il source e logicamente importando dal db sono uguali sulla chiave primaria che 
+	//e' codins come ho inserito nei commenti iniziali
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -70,6 +88,7 @@ public class Corso {
 	}
 
 
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

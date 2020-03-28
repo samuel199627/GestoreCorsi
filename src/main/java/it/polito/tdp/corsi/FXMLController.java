@@ -18,6 +18,15 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 public class FXMLController {
+	
+	
+	//dobbiamo poter passare periodo didattico associato ad un corso, oppure il nome del corso
+	//quindi due caselle di testo di inserimento sicuramente ci servono per inserire.
+	//Poi abbiamo dei bottoni che ci fanno fare l'operazione in base a quello che ci serve
+	//tipo numero di studenti, la stampa dei corsi, la divisione degli studenti e la stampa degli studenti.
+	//Poi abbiamo un area di testo sotto la griglia di caselle di testo e pulsanti per premere il risultato
+	//nella parte in alto della finestra ha usato un gridpane per poter organizzare bene le caselle di testo e il pulsanti 
+	//per rendere meglio graficamente in maniera piu' ordinata.
 
 	private Model model;
 	
@@ -52,10 +61,13 @@ public class FXMLController {
     void corsiPerPeriodo(ActionEvent event) {
     	txtRisultato.clear();
     	
+    	//recuperiamo il periodo inserito
     	String pdString = txtPeriodo.getText();
 
+    	//usiamo la classe java base quindi il confronto lo si fa con equals
     	Integer pd;
 
+    	//verifichiamo che sia stato inserito un numero nel riquadro del periodo
     	try {
     		pd = Integer.parseInt(pdString);
     	} catch (NumberFormatException e) {
@@ -63,6 +75,7 @@ public class FXMLController {
     		return;
     	}
     	
+    	//controllo se e' un numero corretto
     	if(!pd.equals(1) && !pd.equals(2)) {
     		txtRisultato.setText("Devi inserire un numero (1 o 2)!");
     		return;
@@ -70,6 +83,7 @@ public class FXMLController {
     	
     	//l'input è corretto
     	List<Corso> corsi = this.model.getCorsiByPeriodo(pd);
+    	//stampo i corsi uno per riga
     	for(Corso c : corsi) {
     		txtRisultato.appendText(c.toString() + "\n");
     	}
@@ -78,6 +92,7 @@ public class FXMLController {
 
     @FXML
     void numeroStudenti(ActionEvent event) {
+    	//numero studenti per corso in un dato periodo didattico
     	txtRisultato.clear();
     	
     	String pdString = txtPeriodo.getText();
@@ -98,6 +113,7 @@ public class FXMLController {
     	
     	Map<Corso, Integer> statistiche = this.model.getIscrittiByPeriodo(pd);
     	
+    	//per stampare la mappa scorriamo le chiave con il valore associato (valore della mappa associato a quella chiave)
     	for(Corso c : statistiche.keySet()) {
     		txtRisultato.appendText(c.getNome() + " " + statistiche.get(c) + "\n");
     	}
