@@ -11,6 +11,7 @@ import java.util.ResourceBundle;
 
 import it.polito.tdp.corsi.model.Corso;
 import it.polito.tdp.corsi.model.Model;
+import it.polito.tdp.corsi.model.Studente;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -121,11 +122,57 @@ public class FXMLController {
 
     @FXML
     void stampaDivisione(ActionEvent event) {
-
+    	
+    	txtRisultato.clear();
+    	
+    	//Dato un corso vogliamo i corsi di studio per cui ci sono studenti
+    	//iscritti nel corso inserito e con a fianco il numero di studenti di quel 
+    	//corso di studio nel corso passato
+    	
+    	String codins=txtCorso.getText();
+    	
+    	//controllo se il codice passato e' esistente perche' altrimenti potrei avere una lista vuota
+    	//di studenti iscritti perche' il corso non esiste o perche' esiste, ma non ha iscritti, quindi
+    	//devo essere in grado di gestire queste due cose e per farlo mettiamo in CorsoDao un metodo booleano
+    	//che ci dice se un corso e' esistente oppure no
+    	//se il corso non esiste allora stampo che non esiste ed esco
+    	if(!this.model.esisteCorso(codins)) {
+    		txtRisultato.setText("Il corso non esiste!");
+    		return;
+    	}
+    	
+    	Map<String, Integer> statistiche=model.getDivisioneCorsoCDS(new Corso(codins,null,null,null));
+    	for(String cds:statistiche.keySet()) {
+    		txtRisultato.appendText(cds+" "+statistiche.get(cds)+"\n");
+    	}
     }
 
     @FXML
     void stampaStudenti(ActionEvent event) {
+    	
+    	//stampiamo gli studenti quando passiamo un corso
+    	
+    	String codins=txtCorso.getText();
+    	
+    	//controllo se il codice passato e' esistente perche' altrimenti potrei avere una lista vuota
+    	//di studenti iscritti perche' il corso non esiste o perche' esiste, ma non ha iscritti, quindi
+    	//devo essere in grado di gestire queste due cose e per farlo mettiamo in CorsoDao un metodo booleano
+    	//che ci dice se un corso e' esistente oppure no
+    	//se il corso non esiste allora stampo che non esiste ed esco
+    	if(!this.model.esisteCorso(codins)) {
+    		txtRisultato.setText("Il corso non esiste!");
+    		return;
+    	}
+    	List<Studente> studenti=this.model.getStudentiByCorso(new Corso(codins,null,null,null));
+    	
+    	if(studenti.size()==0) {
+    		txtRisultato.setText("Il corso non ha studenti iscritti!");
+    		return;
+    	}
+    	
+    	for(Studente s: studenti) {
+    		txtRisultato.appendText(s.toString()+"\n");
+    	}
 
     }
 

@@ -2,6 +2,7 @@ package it.polito.tdp.corsi.db;
 
 import java.sql.Connection;
 
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import it.polito.tdp.corsi.model.Corso;
+import it.polito.tdp.corsi.model.Studente;
 
 //Corso Dao serve per estrarre informazioni relative alla tabella corso
 //la connessione al database e' bene crearla in un'altra classe
@@ -19,6 +21,39 @@ import it.polito.tdp.corsi.model.Corso;
 //colonne della tabella
 
 public class CorsoDAO {
+	
+	public boolean esisteCorso(String codins) {
+		String sql="select * from corso where codins= ? ";
+		
+		try {
+			//questa connessione puo' scatenare eccezione
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			//settiamo il parametro che arriva da parametro
+			st.setString(1, codins);
+			//il risultato lo saviamo qui che e' il cursore ricordiamo che
+			//punta alle righe
+			ResultSet rs = st.executeQuery();
+			
+			//controlliamo se il cursore punta a qualcosa perche' se punta a qualcosa ritorna true
+			if(rs.next()) {
+				//prima di ritornare, importante sempre chiudere la connessionee!!!
+				st.close();
+				
+				conn.close();
+				return true;
+			}
+			st.close();
+			
+			conn.close();
+			
+		} catch(SQLException e) {
+			throw new RuntimeException(e);
+		}
+		
+		return false;
+		
+	}
 	
 	//supponiamo due modi in cui andiamo interagire con il periodo del corso,
 	//una per i corsi in un periodo e una per gli iscritti (numero) in un periodo
@@ -56,7 +91,7 @@ public class CorsoDAO {
 		
 	}
 	
-	
+	//affinche' un oggetto sia chiave di una mappa, basta che siano definiti i metodi HashTable() ed equals()
 	//restituiamo una mappa con la chiave il corso e come valore il numero di iscritti nel dato preiodo didattico associato al corso
 	public Map<Corso, Integer> getIscrittiByPeriodo(Integer pd){
 		
@@ -106,6 +141,91 @@ public class CorsoDAO {
 		}
 		
 		return result;
+	}
+	
+	
+	//per estrarre tutti gli studenti di una corso possiamo crearcelo sempre qui
+	
+	public List<Studente> getStudentiByCorso(Corso corso){
+		/*
+	 	select s.matricola, s.cognome, s.nome, s.cds 
+		from studente as s, iscrizione i 
+		where s.matricola = i.matricola and i.codins= '01KSUPG' 
+		 */
+		//il periodo didattico lo importiamo da interfaccia quindi ?
+		String sql = "select s.matricola, s.cognome, s.nome, s.cds " + 
+				"from studente as s, iscrizione i " + 
+				"where s.matricola = i.matricola and i.codins= ? ";
+		List<Studente> result = new ArrayList<>();
+		
+		try {
+			//questa connessione puo' scatenare eccezione
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			//settiamo il parametro 
+			st.setString(1, corso.getCodins());
+			//il risultato lo saviamo qui che e' il cursore ricordiamo che
+			//punta alle righe
+			ResultSet rs = st.executeQuery();
+			
+			while(rs.next()) {
+				Studente s = new Studente(rs.getInt("matricola"), rs.getString("cognome"), rs.getString("nome"), rs.getString("cds"));
+				result.add(s);
+			}
+			st.close();
+			
+			conn.close();
+			
+		} catch(SQLException e) {
+			throw new RuntimeException(e);
+		}
+		
+		return result;
+		
+	}
+	
+	public Map<String,Integer> getDivisioneCorsoCDS(Corso c){
+		
+		Map<String,Integer> statistiche= new HashMap<>();
+		
+		//nella query andiamo anche a togliere quegli studenti che sono assegnati al
+		//corso, ma al momento a nessun corso di studio che quindi sono secondo noi
+		//di pococ interesse
+		
+		/*
+		 	select s.CDS, count(*) as tot
+			from studente as s, iscrizione as i
+			where s.matricola=i.matricola and s.cds<> "" and i.codins='01KSUPG'
+			group by s.cds
+		 */
+		String sql="select s.CDS, count(*) as tot " + 
+				"from studente as s, iscrizione as i " + 
+				"where s.matricola=i.matricola and s.cds<> \"\" and i.codins= ? " + 
+				"group by s.cds";
+		
+		try {
+			//questa connessione puo' scatenare eccezione
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			//settiamo il parametro 
+			st.setString(1, c.getCodins());
+			//il risultato lo saviamo qui che e' il cursore ricordiamo che
+			//punta alle righe
+			ResultSet rs = st.executeQuery();
+			
+			while(rs.next()) {
+				statistiche.put(rs.getString("CDS"), rs.getInt("tot"));
+			}
+			st.close();
+			
+			conn.close();
+			
+		} catch(SQLException e) {
+			throw new RuntimeException(e);
+		}
+		
+		
+		return statistiche;
 	}
 	
 
